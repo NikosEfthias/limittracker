@@ -86,8 +86,11 @@ func checkAndDeleteOld(b *Bucket) {
 		//if last tick was earlier than current time minus the specified duration  set the tick to current time
 		b.tick = time.Now()
 	}
+	if len(b.entries) == 0 {
+		return
+	}
 
-	offset := -1
+	offset := 0
 	for i, v := range b.entries {
 		if v.Unix() <= b.tick.Unix() {
 			offset = i
@@ -95,5 +98,9 @@ func checkAndDeleteOld(b *Bucket) {
 			break
 		}
 	}
-	b.entries = b.entries[offset:]
+	if len(b.entries)-1 > offset {
+		b.entries = b.entries[offset:]
+	} else {
+		b.entries = []time.Time{}
+	}
 }
