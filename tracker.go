@@ -38,6 +38,47 @@ func NewBucket(duration time.Duration) *Bucket {
 	}
 }
 
+//BucketMap type
+type BucketMap struct {
+	l sync.Mutex
+	m map[string]*Bucket
+	t time.Duration
+}
+
+//NewBucketMap creates a BucketMap
+func NewBucketMap(duration time.Duration) *BucketMap {
+
+	return &BucketMap{
+		m: make(map[string]*Bucket),
+		t: duration,
+	}
+}
+
+//Entry creates a new entry or updates the existing one
+func (m *BucketMap) Entry(key string) {
+	m.l.Lock()
+	defer m.l.Unlock()
+	bucket, ok := m.m[key]
+	if ok {
+		bucket.Add()
+	} else {
+		buck := NewBucket(m.t)
+		buck.Add()
+		m.m[key] = buck
+	}
+}
+
+//Len returns the number of the entries in specified time for the key
+func (m *BucketMap) Len(key string) int {
+
+	bucket, ok := m.m[key]
+	if ok {
+		return bucket.Len()
+	}
+	return 0
+
+}
+
 func checkAndDeleteOld(b *Bucket) {
 	//this function assumes the bucket is locked elsewhere. If the bucket is not locked before being passed in this function
 	//it will likely cause a race condition
