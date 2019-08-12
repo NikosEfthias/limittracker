@@ -70,7 +70,8 @@ func (m *BucketMap) Entry(key string) {
 
 //Len returns the number of the entries in specified time for the key
 func (m *BucketMap) Len(key string) int {
-
+	m.l.Lock()
+	defer m.l.Unlock()
 	bucket, ok := m.m[key]
 	if ok {
 		return bucket.Len()
