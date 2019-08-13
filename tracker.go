@@ -79,6 +79,32 @@ func (m *BucketMap) Len(key string) int {
 
 }
 
+//ExportState exports the current state of the bucketmap
+func (m *BucketMap) ExportState() (time.Duration, map[string][]time.Time) {
+	mp := make(map[string][]time.Time)
+	m.l.Lock()
+	defer m.l.Unlock()
+	for k, v := range m.m {
+		mp[k] = v.entries
+	}
+	return m.t, mp
+}
+
+//NewBucketMapWithInitialState initializes the new bucket and loads the state which was exported earlier
+func NewBucketMapWithInitialState(duration time.Duration, state map[string][]time.Time) *BucketMap {
+	mp := make(map[string]*Bucket)
+	for k, v := range state {
+		mp[k] = &Bucket{
+			duration: duration,
+			entries:  v,
+		}
+	}
+	return &BucketMap{
+		m: mp,
+		t: duration,
+	}
+}
+
 func checkAndDeleteOld(b *Bucket) {
 	//this function assumes the bucket is locked elsewhere. If the bucket is not locked before being passed in this function
 	//it will likely cause a race condition
