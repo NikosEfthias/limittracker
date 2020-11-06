@@ -1,7 +1,6 @@
 package ratetracker
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
