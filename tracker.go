@@ -116,7 +116,6 @@ func checkAndDeleteOld(b *Bucket) {
 	for i, v := range b.entries {
 		if v.Unix() < time.Now().Add(-1*b.duration).Unix() {
 			offset = i
-			fmt.Println("old data")
 		} else {
 			break
 		}
